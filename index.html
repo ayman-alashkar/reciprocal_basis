@@ -706,8 +706,6 @@
                     </div>
                     
                     <p>The finish line is perpendicular to <span class="vec-e1">e<sub>1</sub></span>, at distance <span class="math">1/|e<sub>1</sub>|</span> from the origin. A longer <span class="vec-e1">e<sub>1</sub></span> brings the line closer.</p>
-                    
-                    <p><em>Notice:</em> The <span class="vec-probe">Probe</span> doesn't need to be parallel to <span class="vec-e1">e<sub>1</sub></span> — it can approach from any angle!</p>
                 </div>
 
                 <div class="panel" id="panel-master">
@@ -898,7 +896,7 @@
             </div>
 
             <div class="footer">
-                <span>Ayman · OIST</span>
+                <span>Ayman Alashkar · OIST</span>
                 <span>2026</span>
             </div>
         </aside>
@@ -1273,11 +1271,49 @@
             ctx.fill();
 
             if (label) {
-                ctx.font = 'italic 16px Crimson Pro';
-                ctx.fillStyle = color;
                 const lblAngle = Math.atan2(vec.y, vec.x);
-                ctx.fillText(label, end.x + 18 * Math.cos(lblAngle), end.y - 18 * Math.sin(lblAngle));
+                const lx = end.x + 18 * Math.cos(lblAngle);
+                const ly = end.y - 18 * Math.sin(lblAngle);
+
+                // Canvas cannot render HTML like <sub>/<sup>, so draw scripts manually.
+                drawMathLabel2D(label, lx, ly, color);
             }
+        }        function drawMathLabel2D(text, x, y, color) {
+            // Supports labels like "e<sub>1</sub>" and "e<sup>1</sup>" (drawn smaller).
+            // Also tolerates plain labels by stripping any remaining HTML tags.
+            const baseFont = 'italic 16px "STIX Two Text", "Crimson Pro", Georgia, serif';
+            const scriptFont = 'italic 11px "STIX Two Text", "Crimson Pro", Georgia, serif';
+            const supDy = -6;
+            const subDy = 6;
+            const kern = -1;
+
+            const subMatch = text.match(/^(.*)<sub>([^<]+)<\/sub>\s*$/i);
+            const supMatch = text.match(/^(.*)<sup>([^<]+)<\/sup>\s*$/i);
+
+            ctx.save();
+            ctx.fillStyle = color;
+            ctx.textAlign = 'left';
+            ctx.textBaseline = 'middle';
+
+            if (subMatch || supMatch) {
+                const isSuper = !!supMatch;
+                const base = (subMatch || supMatch)[1];
+                const script = (subMatch || supMatch)[2];
+
+                ctx.font = baseFont;
+                ctx.fillText(base, x, y);
+                const baseW = ctx.measureText(base).width;
+
+                ctx.font = scriptFont;
+                ctx.fillText(script, x + baseW + kern, y + (isSuper ? supDy : subDy));
+            } else {
+                // Fallback: remove any HTML tags and draw as a normal label.
+                const clean = text.replace(/<[^>]*>/g, '');
+                ctx.font = baseFont;
+                ctx.fillText(clean, x, y);
+            }
+
+            ctx.restore();
         }
 
         function drawLine2D(origin, dir, color, label) {
