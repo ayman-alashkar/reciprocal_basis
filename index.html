@@ -452,6 +452,8 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
+            flex-wrap: wrap;
+            gap: 10px;
             background: var(--bg-secondary);
         }
 
@@ -478,6 +480,104 @@
         }
         .sidebar-toggle:hover { color: var(--text-primary); background: var(--bg-primary); }
         .sidebar-toggle:active { transform: translateY(1px); }
+
+        /* Header action buttons (Reset + Help) */
+        .canvas-actions{
+            display:flex;
+            align-items:center;
+            gap:8px;
+            flex-shrink:0;
+        }
+        .action-btn{
+            display:inline-flex;
+            align-items:center;
+            justify-content:center;
+            width:34px;
+            height:30px;
+            border-radius:10px;
+            border:1px solid var(--border-color);
+            background: var(--bg-tertiary);
+            color: var(--text-secondary);
+            cursor:pointer;
+            user-select:none;
+            -webkit-tap-highlight-color: transparent;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 14px;
+            transition: background 0.15s, color 0.15s, transform 0.1s;
+        }
+        .action-btn:hover{ color: var(--text-primary); background: var(--bg-primary); }
+        .action-btn:active{ transform: translateY(1px); }
+
+        /* Small help popover */
+        .help-popover{
+            position:absolute;
+            top: 56px; /* just below header */
+            right: 16px;
+            width: clamp(240px, 28vw, 340px);
+            background: rgba(18, 23, 31, 0.96);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 12px 14px;
+            backdrop-filter: blur(12px);
+            box-shadow: 0 12px 28px rgba(0,0,0,0.35);
+            z-index: 50;
+        }
+        .help-title-row{
+            display:flex;
+            align-items:center;
+            justify-content:space-between;
+            gap:10px;
+            margin-bottom: 8px;
+        }
+        .help-title{
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 11px;
+            letter-spacing: 0.08em;
+            color: var(--text-muted);
+            text-transform: none;
+        }
+        .help-close{
+            display:inline-flex;
+            align-items:center;
+            justify-content:center;
+            width:28px;
+            height:24px;
+            border-radius: 10px;
+            border: 1px solid var(--border-color);
+            background: var(--bg-tertiary);
+            color: var(--text-secondary);
+            cursor:pointer;
+            user-select:none;
+        }
+        .help-close:hover{ color: var(--text-primary); background: var(--bg-primary); }
+
+        .help-section{ margin-top: 10px; }
+        .help-section-title{
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 10px;
+            letter-spacing: 0.08em;
+            color: var(--text-muted);
+            margin-bottom: 6px;
+        }
+        .help-popover ul{
+            margin: 0;
+            padding-left: 18px;
+            color: var(--text-secondary);
+            font-size: 12px;
+            line-height: 1.55;
+        }
+        .help-popover li{ margin: 4px 0; }
+        .kbd{
+            display:inline-block;
+            padding: 1px 6px;
+            border: 1px solid var(--border-color);
+            border-radius: 7px;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 11px;
+            transform: translateY(-1px);
+        }
 
         /* Collapse sidebar (useful on phones / for presenting) */
         body.sidebar-collapsed .sidebar { display: none; }
@@ -934,7 +1034,54 @@
                     <div class="legend-item"><div class="legend-dot r2"></div><span>e<sup>2</sup></span></div>
                     <div class="legend-item"><div class="legend-dot r3"></div><span>e<sup>3</sup></span></div>
                 </div>
+
+                <div class="canvas-actions" aria-label="Workspace actions">
+                    <button class="action-btn" id="reset-btn" aria-label="Reset view" title="Reset view">⟲</button>
+                    <button class="action-btn" id="help-btn" aria-label="Help" title="Help">?</button>
+                </div>
             </div>
+
+            <div class="help-popover hidden" id="help-popover" role="dialog" aria-label="Controls help">
+                <div class="help-title-row">
+                    <span class="help-title">CONTROLS</span>
+                    <button class="help-close" id="help-close" aria-label="Close help" title="Close">✕</button>
+                </div>
+
+                <div class="help-section">
+                    <div class="help-section-title">General</div>
+                    <ul>
+                        <li><span class="kbd">☰</span> toggle sidebar (presentation mode)</li>
+                        <li><span class="kbd">⟲</span> reset the current view</li>
+                        <li><span class="kbd">2D</span>/<span class="kbd">3D</span> mode buttons switch scenes</li>
+                    </ul>
+                </div>
+
+                <div class="help-section">
+                    <div class="help-section-title">2D Canvas</div>
+                    <ul>
+                        <li>Drag vector tips / the probe to move them</li>
+                        <li>Scroll (or pinch) to zoom</li>
+                    </ul>
+                </div>
+
+                <div class="help-section">
+                    <div class="help-section-title">3D Canvas</div>
+                    <ul>
+                        <li>Drag to rotate / orbit</li>
+                        <li>Scroll (or pinch) to zoom</li>
+                    </ul>
+                </div>
+
+                <div class="help-section">
+                    <div class="help-section-title">Shortcuts</div>
+                    <ul>
+                        <li><span class="kbd">R</span> reset</li>
+                        <li><span class="kbd">?</span> help</li>
+                        <li><span class="kbd">Esc</span> close help</li>
+                    </ul>
+                </div>
+            </div>
+
             <div class="canvas-container">
                 <canvas id="canvas-2d"></canvas>
                 <canvas id="canvas-3d" class="hidden"></canvas>
@@ -2228,6 +2375,159 @@ function updateCamera3D() {
                 if (state.mode === '2d') resize2D();
                 else resize3D();
             });
+
+        // =====================================================
+        // RESET + HELP
+        // =====================================================
+        const DEFAULTS = {
+            twoD: {
+                e1: { angle: 0, length: 1 },
+                e2: { angle: 90, length: 1 },
+                probe: { x: 1.5, y: 0.5 },
+                scale2D: 120,
+                offset2D: { x: 0, y: 0 },
+                tab: 'finish'
+            },
+            threeD: {
+                basis: {
+                    e1: { x: 0.7, y: 0, z: 0 },
+                    e2: { x: 0, y: 0.7, z: 0 },
+                    e3: { x: 0, y: 0, z: 0.7 }
+                },
+                show: { basis: true, reciprocal: true, basisVol: true, recipVol: false },
+                tab: 'basis',
+                camera: { theta: Math.PI / 4, phi: Math.PI / 3, radius: 7 }
+            }
+        };
+
+        function _set2DTab(tabName) {
+            const btn = document.querySelector(`#tabs-2d .tab[data-tab="${tabName}"]`);
+            if (btn) btn.click();
+        }
+
+        function _set3DTab(tabName) {
+            const btn = document.querySelector(`#tabs-3d .tab[data-tab="${tabName}"]`);
+            if (btn) btn.click();
+        }
+
+        function reset2D() {
+            state.e1.angle = DEFAULTS.twoD.e1.angle;
+            state.e1.length = DEFAULTS.twoD.e1.length;
+            state.e2.angle = DEFAULTS.twoD.e2.angle;
+            state.e2.length = DEFAULTS.twoD.e2.length;
+            state.probe = { ...DEFAULTS.twoD.probe };
+            state.scale2D = DEFAULTS.twoD.scale2D;
+            state.offset2D = { ...DEFAULTS.twoD.offset2D };
+            state.dragging2D = null;
+
+            update2DSliders();
+            updateProbeSliders();
+            _set2DTab(DEFAULTS.twoD.tab);
+            draw2D();
+        }
+
+        function reset3D() {
+            // Reset basis + view toggles
+            state.basis = JSON.parse(JSON.stringify(DEFAULTS.threeD.basis));
+            state.show = { ...DEFAULTS.threeD.show };
+            state.tab3D = DEFAULTS.threeD.tab;
+
+            // Reset camera/orbit state
+            if (typeof spherical === 'object' && spherical) {
+                spherical.theta = DEFAULTS.threeD.camera.theta;
+                spherical.phi = DEFAULTS.threeD.camera.phi;
+                spherical.radius = DEFAULTS.threeD.camera.radius;
+            }
+
+            // Sync UI (sliders + toggles + tab)
+            update3DSliders();
+
+            const tBasis = document.getElementById('toggle-basis');
+            const tRecip = document.getElementById('toggle-reciprocal');
+            const tBasisVol = document.getElementById('toggle-basis-vol');
+            const tRecipVol = document.getElementById('toggle-recip-vol');
+
+            if (tBasis) tBasis.classList.toggle('active', state.show.basis);
+            if (tRecip) tRecip.classList.toggle('active', state.show.reciprocal);
+            if (tBasisVol) tBasisVol.classList.toggle('active', state.show.basisVol);
+            if (tRecipVol) tRecipVol.classList.toggle('active', state.show.recipVol);
+
+            _set3DTab(DEFAULTS.threeD.tab);
+
+            // Ensure 3D is initialized before trying to move camera
+            if (!renderer && state.mode === '3d') init3D();
+
+            if (renderer && camera) updateCamera3D();
+            update3D();
+        }
+
+        function resetCurrentView() {
+            if (state.mode === '2d') reset2D();
+            else reset3D();
+        }
+
+        // Help popover
+        const _helpPopover = document.getElementById('help-popover');
+        const _helpBtn = document.getElementById('help-btn');
+        const _helpClose = document.getElementById('help-close');
+
+        function openHelp() {
+            if (_helpPopover) _helpPopover.classList.remove('hidden');
+        }
+        function closeHelp() {
+            if (_helpPopover) _helpPopover.classList.add('hidden');
+        }
+        function toggleHelp() {
+            if (!_helpPopover) return;
+            _helpPopover.classList.toggle('hidden');
+        }
+
+        // Wire buttons
+        const _resetBtn = document.getElementById('reset-btn');
+        if (_resetBtn) _resetBtn.addEventListener('click', () => {
+            resetCurrentView();
+            closeHelp();
+        });
+
+        if (_helpBtn) _helpBtn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            toggleHelp();
+        });
+        if (_helpClose) _helpClose.addEventListener('click', () => closeHelp());
+
+        // Close help when clicking outside
+        document.addEventListener('pointerdown', (e) => {
+            if (!_helpPopover || _helpPopover.classList.contains('hidden')) return;
+            const target = e.target;
+            if (_helpPopover.contains(target)) return;
+            if (_helpBtn && _helpBtn.contains(target)) return;
+            closeHelp();
+        });
+
+        // Keyboard shortcuts (ignore when a form control has focus)
+        document.addEventListener('keydown', (e) => {
+            const tag = (document.activeElement && document.activeElement.tagName) ? document.activeElement.tagName.toLowerCase() : '';
+            if (tag === 'input' || tag === 'textarea' || tag === 'select') return;
+
+            if (e.key === 'Escape') {
+                closeHelp();
+                return;
+            }
+
+            // "?" opens help on most keyboards (Shift + /)
+            if (e.key === '?' || (e.key === '/' && e.shiftKey)) {
+                e.preventDefault();
+                openHelp();
+                return;
+            }
+
+            if (e.key === 'r' || e.key === 'R') {
+                e.preventDefault();
+                resetCurrentView();
+                closeHelp();
+            }
+        });
+
         }
 
 // Start with Finish Line tab - hide e2 controls
