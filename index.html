@@ -24,6 +24,7 @@
             --accent-probe: #8b949e;
             --accent-green: #3fb950;
             --border-color: #30363d;
+            --sidebar-w: clamp(300px, 34vw, 420px);
         }
 
         * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -33,13 +34,19 @@
             background: var(--bg-primary);
             color: var(--text-primary);
             min-height: 100vh;
+            min-height: 100dvh;
+            height: 100vh;
+            height: 100dvh;
             overflow-x: hidden;
         }
 
         .container {
             display: grid;
-            grid-template-columns: 420px 1fr;
+            grid-template-columns: var(--sidebar-w) 1fr;
             min-height: 100vh;
+            min-height: 100dvh;
+            height: 100vh;
+            height: 100dvh;
         }
 
         /* Sidebar */
@@ -105,7 +112,7 @@
             background: none;
             border: none;
             color: var(--text-secondary);
-            font-family: 'Crimson Pro', serif;
+            font-family: "STIX Two Text", Georgia, serif;
             font-size: 14px;
             cursor: pointer;
             border-radius: 8px;
@@ -137,7 +144,7 @@
             background: none;
             border: none;
             color: var(--text-secondary);
-            font-family: 'Crimson Pro', serif;
+            font-family: "STIX Two Text", Georgia, serif;
             font-size: 13px;
             cursor: pointer;
             position: relative;
@@ -336,6 +343,11 @@
             border-radius: 50%;
         }
 
+        /* Keeps "Vector e₁" together in flex titles (prevents flex gap splitting e and sub/sup) */
+        .control-section-title .title-label { display: inline-block; }
+        .control-section-title .title-label sub,
+        .control-section-title .title-label sup { font-size: 0.72em; }
+
         .control-group {
             margin-bottom: 10px;
         }
@@ -443,6 +455,37 @@
             background: var(--bg-secondary);
         }
 
+        .canvas-head-left {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            min-width: 0;
+        }
+
+        .sidebar-toggle {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 34px;
+            height: 30px;
+            border-radius: 10px;
+            border: 1px solid var(--border-color);
+            background: var(--bg-tertiary);
+            color: var(--text-secondary);
+            cursor: pointer;
+            user-select: none;
+            -webkit-tap-highlight-color: transparent;
+        }
+        .sidebar-toggle:hover { color: var(--text-primary); background: var(--bg-primary); }
+        .sidebar-toggle:active { transform: translateY(1px); }
+
+        /* Collapse sidebar (useful on phones / for presenting) */
+        body.sidebar-collapsed .sidebar { display: none; }
+        body.sidebar-collapsed .container {
+            grid-template-columns: 1fr !important;
+            grid-template-rows: 1fr !important;
+        }
+
         .canvas-title {
             font-size: 13px;
             color: var(--text-secondary);
@@ -484,6 +527,7 @@
 
         canvas {
             display: block;
+            touch-action: none;
             position: absolute;
             top: 0;
             left: 0;
@@ -647,20 +691,53 @@
 
         .hidden { display: none !important; }
 
-        @media (max-width: 1000px) {
+        @media (max-width: 1100px) {
             .container {
                 grid-template-columns: 1fr;
                 grid-template-rows: auto 1fr;
+                height: auto;
+                min-height: 100vh;
+                min-height: 100dvh;
             }
-            .sidebar { max-height: 50vh; }
-            .canvas-area { min-height: 50vh; }
+            .sidebar { max-height: 48dvh; }
+            .canvas-area { min-height: 52dvh; }
         }
-    
-        /* Keeps "Vector e₁" together in flex titles (prevents flex gap splitting e and sub/sup) */
-        .control-section-title .title-label { display: inline-block; }
-        .control-section-title .title-label sub,
-        .control-section-title .title-label sup { font-size: 0.72em; }
 
+        @media (max-width: 700px) {
+            .header { padding: 16px; }
+            .mode-toggle { margin: 12px 16px; }
+            .tabs { padding: 0 6px; }
+            .content { padding: 16px; }
+            .controls { padding: 14px 16px; }
+
+            .canvas-header { flex-direction: column; align-items: flex-start; gap: 8px; }
+            .legend { gap: 10px; }
+            .legend-item { font-size: 11px; }
+
+            .controls-panel-right {
+                left: 8px;
+                right: 8px;
+                width: auto;
+                top: auto;
+                bottom: 56px;
+                max-height: 38%;
+            }
+
+            .info-overlay {
+                top: 8px;
+                left: 8px;
+                right: 8px;
+                min-width: 0;
+            }
+
+            .canvas-hint { bottom: 10px; }
+        }
+
+        @media (max-width: 420px) {
+            .logo-text { font-size: 18px; }
+            .panel-title { font-size: 18px; }
+            .equation-box { padding: 12px 14px; }
+        }
     </style>
 </head>
 <body>
@@ -699,25 +776,25 @@
                 <div class="panel active" id="panel-finish">
                     <h2 class="panel-title">The "Finish Line" Analogy</h2>
                     <p>Start with vector <span class="vec-e1">e<sub>1</sub></span>. The condition <span class="math">e<sub>1</sub> · x = 1</span> defines a "Finish Line" — a hyperplane of all vectors satisfying this constraint.</p>
-                    
+
                     <div class="highlight-box">
                         <div class="highlight-box-title">Try This</div>
                         <p style="margin: 0;">Drag the <span class="vec-probe">Probe</span> vector. It turns <span class="vec-green">green</span> when its tip touches the finish line!</p>
                     </div>
-                    
+
                     <p>The finish line is perpendicular to <span class="vec-e1">e<sub>1</sub></span>, at distance <span class="math">1/|e<sub>1</sub>|</span> from the origin. A longer <span class="vec-e1">e<sub>1</sub></span> brings the line closer.</p>
                 </div>
 
                 <div class="panel" id="panel-master">
                     <h2 class="panel-title">The Second Master</h2>
                     <p>Introduce <span class="vec-e2">e<sub>2</sub></span>. The dual vector <span class="vec-r1">e<sup>1</sup></span> must now satisfy a second constraint:</p>
-                    
+
                     <div class="equation-box">
                         <span class="equation">e<sup>1</sup> · e<sub>2</sub> = 0</span>
                     </div>
-                    
+
                     <p>This forces <span class="vec-r1">e<sup>1</sup></span> to lie on the "Zero Line" — perpendicular to <span class="vec-e2">e<sub>2</sub></span>.</p>
-                    
+
                     <div class="highlight-box constraint">
                         <div class="highlight-box-title">The Constraint</div>
                         <p style="margin: 0;"><span class="vec-r1">e<sup>1</sup></span> must be orthogonal to every basis vector except <span class="vec-e1">e<sub>1</sub></span>.</p>
@@ -727,19 +804,19 @@
                 <div class="panel" id="panel-conflict">
                     <h2 class="panel-title">The Visual Conflict</h2>
                     <p><span class="vec-r1">e<sup>1</sup></span> serves two masters simultaneously:</p>
-                    
+
                     <div class="highlight-box">
                         <div class="highlight-box-title">Job 1: Reach the Finish</div>
                         <p style="margin: 0;"><span class="math">e<sup>1</sup> · e<sub>1</sub> = 1</span></p>
                     </div>
-                    
+
                     <div class="highlight-box constraint">
                         <div class="highlight-box-title">Job 2: Stay on Zero Line</div>
                         <p style="margin: 0;"><span class="math">e<sup>1</sup> · e<sub>2</sub> = 0</span></p>
                     </div>
-                    
+
                     <p>The unique solution is where these two lines intersect. This is the 2D version of:</p>
-                    
+
                     <div class="equation-box">
                         <span class="equation">e<sup>1</sup> = e<sub>2</sub>⊥ / (e<sub>1</sub> · e<sub>2</sub>⊥)</span>
                     </div>
@@ -749,19 +826,19 @@
                 <div class="panel" id="panel-basis">
                     <h2 class="panel-title">The Basis Triad</h2>
                     <p>Let <span class="math">{e<sub>1</sub>, e<sub>2</sub>, e<sub>3</sub>}</span> be a basis for V. These vectors span the space and form a parallelepiped.</p>
-                    
+
                     <div class="highlight-box volume">
                         <div class="highlight-box-title">Volume Condition</div>
                         <p style="margin: 0;">For a valid basis: <span class="math">e<sub>1</sub> · (e<sub>2</sub> × e<sub>3</sub>) ≠ 0</span></p>
                     </div>
-                    
+
                     <p>The scalar triple product gives the signed volume of the parallelepiped. Adjust the vectors to see how volume changes.</p>
                 </div>
 
                 <div class="panel" id="panel-reciprocal">
                     <h2 class="panel-title">The Reciprocal Basis</h2>
                     <p>The reciprocal vectors <span class="math">{e<sup>1</sup>, e<sup>2</sup>, e<sup>3</sup>}</span> are defined by:</p>
-                    
+
                     <div class="equation-box">
                         <span class="equation">e<sup>1</sup> = (e<sub>2</sub> × e<sub>3</sub>) / V</span>
                     </div>
@@ -771,9 +848,9 @@
                     <div class="equation-box">
                         <span class="equation">e<sup>3</sup> = (e<sub>1</sub> × e<sub>2</sub>) / V</span>
                     </div>
-                    
+
                     <p>where <span class="math">V = e<sub>1</sub> · (e<sub>2</sub> × e<sub>3</sub>)</span></p>
-                    
+
                     <div class="highlight-box formula">
                         <div class="highlight-box-title">Geometric Meaning</div>
                         <p style="margin: 0;">Each <span class="vec-r1">e<sup>i</sup></span> is perpendicular to the other two basis vectors, scaled to satisfy <span class="math">e<sup>i</sup> · e<sub>i</sub> = 1</span>.</p>
@@ -783,23 +860,23 @@
                 <div class="panel" id="panel-volume">
                     <h2 class="panel-title">Volume Duality</h2>
                     <p>A beautiful relationship exists between the volumes of the two parallelepipeds:</p>
-                    
+
                     <div class="equation-box">
                         <span class="equation">e<sup>1</sup> · (e<sup>2</sup> × e<sup>3</sup>) = 1 / V</span>
                     </div>
-                    
+
                     <div class="highlight-box success">
                         <div class="highlight-box-title">The Duality</div>
                         <p style="margin: 0;"><span class="math">V* = 1/V</span><br>The reciprocal volume is the inverse of the original!</p>
                     </div>
-                    
+
                     <p>Watch both parallelepipeds as you adjust the basis. When the original expands, its reciprocal contracts.</p>
                 </div>
 
                 <div class="panel" id="panel-biorth">
                     <h2 class="panel-title">Biorthogonality</h2>
                     <p>The defining property of reciprocal bases is the biorthogonality condition:</p>
-                    
+
                     <div class="matrix-container">
                         <div class="matrix-title">e<sup>i</sup> · eⱼ = δ<sup>i</sup><sub>j</sub></div>
                         <div class="matrix-grid">
@@ -821,9 +898,9 @@
                             <div class="matrix-cell value one" id="m33">1</div>
                         </div>
                     </div>
-                    
+
                     <p>This is the Kronecker delta: 1 when indices match, 0 otherwise. The matrix above shows live values!</p>
-                    
+
                     <div class="highlight-box">
                         <div class="highlight-box-title">Why It Works</div>
                         <p style="margin: 0;">Since <span class="math">e<sup>1</sup> = (e<sub>2</sub> × e<sub>3</sub>)/V</span>, it's perpendicular to both <span class="vec-e2">e<sub>2</sub></span> and <span class="vec-e3">e<sub>3</sub></span>, hence <span class="math">e<sup>1</sup> · e<sub>2</sub> = e<sup>1</sup> · e<sub>3</sub> = 0</span>.</p>
@@ -831,11 +908,44 @@
                 </div>
             </div>
 
-            <!-- 2D Controls -->
-            <div class="controls" id="controls-2d">
-                <div class="control-section">
+            <div class="footer">
+                <span>Ayman Alashkar · OIST</span>
+                <span>2026</span>
+            </div>
+        </aside>
+
+        <main class="canvas-area">
+            <div class="canvas-header">
+                <div class="canvas-head-left">
+                    <button class="sidebar-toggle" id="sidebar-toggle" aria-label="Toggle sidebar" title="Toggle sidebar">☰</button>
+                    <span class="canvas-title" id="canvas-title">Geometric Workspace</span>
+                </div>
+                <div class="legend" id="legend-2d">
+                    <div class="legend-item"><div class="legend-dot e1"></div><span>e<sub>1</sub></span></div>
+                    <div class="legend-item"><div class="legend-dot e2"></div><span>e<sub>2</sub></span></div>
+                    <div class="legend-item"><div class="legend-dot r1"></div><span>e<sup>1</sup></span></div>
+                    <div class="legend-item"><div class="legend-dot probe"></div><span>Probe</span></div>
+                </div>
+                <div class="legend hidden" id="legend-3d">
+                    <div class="legend-item"><div class="legend-dot e1"></div><span>e<sub>1</sub></span></div>
+                    <div class="legend-item"><div class="legend-dot e2"></div><span>e<sub>2</sub></span></div>
+                    <div class="legend-item"><div class="legend-dot e3"></div><span>e<sub>3</sub></span></div>
+                    <div class="legend-item"><div class="legend-dot r1"></div><span>e<sup>1</sup></span></div>
+                    <div class="legend-item"><div class="legend-dot r2"></div><span>e<sup>2</sup></span></div>
+                    <div class="legend-item"><div class="legend-dot r3"></div><span>e<sup>3</sup></span></div>
+                </div>
+            </div>
+            <div class="canvas-container">
+                <canvas id="canvas-2d"></canvas>
+                <canvas id="canvas-3d" class="hidden"></canvas>
+
+                
+
+                <!-- 2D Controls Panel (overlay) -->
+                <div class="controls-panel-right" id="controls-2d-right">
+<div class="control-section">
                     <div class="control-section-title">
-<span class="dot" style="background: var(--accent-e1)"></span>
+                        <span class="dot" style="background: var(--accent-e1)"></span>
                         <span class="title-label">Vector e<sub>1</sub></span>
                     </div>
                     <div class="control-group">
@@ -855,7 +965,7 @@
                 </div>
                 <div class="control-section" id="e2-controls">
                     <div class="control-section-title">
-<span class="dot" style="background: var(--accent-e2)"></span>
+                        <span class="dot" style="background: var(--accent-e2)"></span>
                         <span class="title-label">Vector e<sub>2</sub></span>
                     </div>
                     <div class="control-group">
@@ -875,7 +985,7 @@
                 </div>
                 <div class="control-section" id="probe-controls">
                     <div class="control-section-title">
-<span class="dot" style="background: var(--accent-probe)"></span>
+                        <span class="dot" style="background: var(--accent-probe)"></span>
                         <span class="title-label">Probe Vector</span>
                     </div>
                     <div class="control-group">
@@ -893,37 +1003,9 @@
                         <input type="range" class="slider probe" id="probe-y" min="-2" max="3" step="0.05" value="0.5">
                     </div>
                 </div>
-            </div>
-
-            <div class="footer">
-                <span>Ayman Alashkar · OIST</span>
-                <span>2026</span>
-            </div>
-        </aside>
-
-        <main class="canvas-area">
-            <div class="canvas-header">
-                <span class="canvas-title" id="canvas-title">Geometric Workspace</span>
-                <div class="legend" id="legend-2d">
-                    <div class="legend-item"><div class="legend-dot e1"></div><span>e<sub>1</sub></span></div>
-                    <div class="legend-item"><div class="legend-dot e2"></div><span>e<sub>2</sub></span></div>
-                    <div class="legend-item"><div class="legend-dot r1"></div><span>e<sup>1</sup></span></div>
-                    <div class="legend-item"><div class="legend-dot probe"></div><span>Probe</span></div>
                 </div>
-                <div class="legend hidden" id="legend-3d">
-                    <div class="legend-item"><div class="legend-dot e1"></div><span>e<sub>1</sub></span></div>
-                    <div class="legend-item"><div class="legend-dot e2"></div><span>e<sub>2</sub></span></div>
-                    <div class="legend-item"><div class="legend-dot e3"></div><span>e<sub>3</sub></span></div>
-                    <div class="legend-item"><div class="legend-dot r1"></div><span>e<sup>1</sup></span></div>
-                    <div class="legend-item"><div class="legend-dot r2"></div><span>e<sup>2</sup></span></div>
-                    <div class="legend-item"><div class="legend-dot r3"></div><span>e<sup>3</sup></span></div>
-                </div>
-            </div>
-            <div class="canvas-container">
-                <canvas id="canvas-2d"></canvas>
-                <canvas id="canvas-3d" class="hidden"></canvas>
-                
-                <div class="info-overlay" id="info-2d">
+
+<div class="info-overlay" id="info-2d">
                     <div class="info-title">Measurements</div>
                     <div class="info-row">
                         <span class="info-label">Probe · e<sub>1</sub></span>
@@ -982,9 +1064,9 @@
                 <div class="controls-panel-right hidden" id="controls-3d-right">
                     <div class="control-section">
                         <div class="control-section-title">
-<span class="dot" style="background: var(--accent-e1)"></span>
-                        <span class="title-label">Vector e<sub>1</sub></span>
-                    </div>
+                            <span class="dot" style="background: var(--accent-e1)"></span>
+                            <span class="title-label">Vector e<sub>1</sub></span>
+                        </div>
                         <div class="control-group">
                             <div class="control-label">
                                 <span class="control-name" style="color: var(--accent-e1)">X</span>
@@ -1009,9 +1091,9 @@
                     </div>
                     <div class="control-section">
                         <div class="control-section-title">
-<span class="dot" style="background: var(--accent-e2)"></span>
-                        <span class="title-label">Vector e<sub>2</sub></span>
-                    </div>
+                            <span class="dot" style="background: var(--accent-e2)"></span>
+                            <span class="title-label">Vector e<sub>2</sub></span>
+                        </div>
                         <div class="control-group">
                             <div class="control-label">
                                 <span class="control-name" style="color: var(--accent-e2)">X</span>
@@ -1036,9 +1118,9 @@
                     </div>
                     <div class="control-section">
                         <div class="control-section-title">
-<span class="dot" style="background: var(--accent-e3)"></span>
-                        <span class="title-label">Vector e<sub>3</sub></span>
-                    </div>
+                            <span class="dot" style="background: var(--accent-e3)"></span>
+                            <span class="title-label">Vector e<sub>3</sub></span>
+                        </div>
                         <div class="control-group">
                             <div class="control-label">
                                 <span class="control-name" style="color: var(--accent-e3)">X</span>
@@ -1141,17 +1223,17 @@
         // =====================================================
         const degToRad = d => d * Math.PI / 180;
         const radToDeg = r => r * 180 / Math.PI;
-        
+
         function vec2FromAngle(angle, len = 1) {
             const r = degToRad(angle);
             return { x: Math.cos(r) * len, y: Math.sin(r) * len };
         }
-        
+
         function dot2(a, b) { return a.x * b.x + a.y * b.y; }
         function mag2(v) { return Math.sqrt(v.x * v.x + v.y * v.y); }
         function norm2(v) { const m = mag2(v); return m > 0 ? { x: v.x/m, y: v.y/m } : { x: 0, y: 0 }; }
         function perp2(v) { return { x: -v.y, y: v.x }; }
-        
+
         function cross3(a, b) {
             return {
                 x: a.y * b.z - a.z * b.y,
@@ -1159,7 +1241,7 @@
                 z: a.x * b.y - a.y * b.x
             };
         }
-        
+
         function dot3(a, b) { return a.x * b.x + a.y * b.y + a.z * b.z; }
         function mag3(v) { return Math.sqrt(dot3(v, v)); }
         function scale3(v, s) { return { x: v.x * s, y: v.y * s, z: v.z * s }; }
@@ -1179,9 +1261,9 @@
             const e3xe1 = cross3(e3, e1);
             const e1xe2 = cross3(e1, e2);
             const V = dot3(e1, e2xe3);
-            
+
             if (Math.abs(V) < 1e-10) return null;
-            
+
             return {
                 r1: scale3(e2xe3, 1/V),
                 r2: scale3(e3xe1, 1/V),
@@ -1196,56 +1278,66 @@
         const canvas2D = document.getElementById('canvas-2d');
         const ctx = canvas2D.getContext('2d');
 
+        function getCanvasSize2D() {
+            return {
+                w: canvas2D.clientWidth || canvas2D.width,
+                h: canvas2D.clientHeight || canvas2D.height
+            };
+        }
+
         function worldToScreen2D(wx, wy) {
-            const cx = canvas2D.width / 2 + state.offset2D.x;
-            const cy = canvas2D.height / 2 + state.offset2D.y;
+            const { w, h } = getCanvasSize2D();
+            const cx = w / 2 + state.offset2D.x;
+            const cy = h / 2 + state.offset2D.y;
             return { x: cx + wx * state.scale2D, y: cy - wy * state.scale2D };
         }
 
         function screenToWorld2D(sx, sy) {
-            const cx = canvas2D.width / 2 + state.offset2D.x;
-            const cy = canvas2D.height / 2 + state.offset2D.y;
+            const { w, h } = getCanvasSize2D();
+            const cx = w / 2 + state.offset2D.x;
+            const cy = h / 2 + state.offset2D.y;
             return { x: (sx - cx) / state.scale2D, y: -(sy - cy) / state.scale2D };
         }
 
         function drawGrid2D() {
+            const { w, h } = getCanvasSize2D();
             const step = state.scale2D;
-            const cx = canvas2D.width / 2 + state.offset2D.x;
-            const cy = canvas2D.height / 2 + state.offset2D.y;
+            const cx = w / 2 + state.offset2D.x;
+            const cy = h / 2 + state.offset2D.y;
 
             ctx.strokeStyle = colors.grid;
             ctx.lineWidth = 1;
 
-            for (let x = cx % step; x < canvas2D.width; x += step) {
+            for (let x = cx % step; x < w; x += step) {
                 ctx.beginPath();
                 ctx.moveTo(x, 0);
-                ctx.lineTo(x, canvas2D.height);
+                ctx.lineTo(x, h);
                 ctx.stroke();
             }
-            for (let y = cy % step; y < canvas2D.height; y += step) {
+            for (let y = cy % step; y < h; y += step) {
                 ctx.beginPath();
                 ctx.moveTo(0, y);
-                ctx.lineTo(canvas2D.width, y);
+                ctx.lineTo(w, y);
                 ctx.stroke();
             }
 
             // Axes
             ctx.strokeStyle = colors.axis;
             ctx.lineWidth = 2;
-            ctx.beginPath(); ctx.moveTo(0, cy); ctx.lineTo(canvas2D.width, cy); ctx.stroke();
-            ctx.beginPath(); ctx.moveTo(cx, 0); ctx.lineTo(cx, canvas2D.height); ctx.stroke();
+            ctx.beginPath(); ctx.moveTo(0, cy); ctx.lineTo(w, cy); ctx.stroke();
+            ctx.beginPath(); ctx.moveTo(cx, 0); ctx.lineTo(cx, h); ctx.stroke();
 
             // Axis labels
             ctx.font = '14px JetBrains Mono';
             ctx.fillStyle = colors.axis;
-            ctx.fillText('X', canvas2D.width - 20, cy - 10);
+            ctx.fillText('X', w - 20, cy - 10);
             ctx.fillText('Y', cx + 10, 20);
         }
 
         function drawVector2D(origin, vec, color, label, dashed = false) {
             const start = worldToScreen2D(origin.x, origin.y);
             const end = worldToScreen2D(origin.x + vec.x, origin.y + vec.y);
-            
+
             ctx.strokeStyle = color;
             ctx.lineWidth = 3;
             ctx.lineCap = 'round';
@@ -1276,41 +1368,74 @@
                 const ly = end.y - 18 * Math.sin(lblAngle);
 
                 // Canvas cannot render HTML like <sub>/<sup>, so draw scripts manually.
-                drawMathLabel2D(label, lx, ly, color);
+                drawMathLabel2D(label, lx, ly, color, 16);
             }
-        }        function drawMathLabel2D(text, x, y, color) {
-            // Supports labels like "e<sub>1</sub>" and "e<sup>1</sup>" (drawn smaller).
-            // Also tolerates plain labels by stripping any remaining HTML tags.
-            const baseFont = 'italic 16px "STIX Two Text", "Crimson Pro", Georgia, serif';
-            const scriptFont = 'italic 11px "STIX Two Text", "Crimson Pro", Georgia, serif';
-            const supDy = -6;
-            const subDy = 6;
+        }
+
+        function drawMathLabel2D(text, x, y, color, basePx = 16) {
+            // Draws strings containing inline <sub>..</sub> and <sup>..</sup> onto the 2D canvas.
+            // Example: 'e<sub>1</sub>·x = 1' or 'e<sup>1</sup>'
+
+            const family = '"STIX Two Text", "Crimson Pro", Georgia, serif';
+            const baseFont = `italic ${basePx}px ${family}`;
+            const scriptPx = Math.max(9, Math.round(basePx * 0.70));
+            const scriptFont = `italic ${scriptPx}px ${family}`;
+
+            const supDy = -Math.round(basePx * 0.38);
+            const subDy =  Math.round(basePx * 0.38);
             const kern = -1;
 
-            const subMatch = text.match(/^(.*)<sub>([^<]+)<\/sub>\s*$/i);
-            const supMatch = text.match(/^(.*)<sup>([^<]+)<\/sup>\s*$/i);
+            // Fast path: no sub/sup tags
+            if (!/<\s*(sub|sup)\s*>/i.test(text)) {
+                ctx.save();
+                ctx.fillStyle = color;
+                ctx.textAlign = 'left';
+                ctx.textBaseline = 'middle';
+                ctx.font = baseFont;
+                ctx.fillText(text, x, y);
+                ctx.restore();
+                return;
+            }
+
+            const tagRe = /<\s*(sub|sup)\s*>([\s\S]*?)<\s*\/\s*\1\s*>/ig;
+            let cursor = 0;
+            let cx = x;
 
             ctx.save();
             ctx.fillStyle = color;
             ctx.textAlign = 'left';
             ctx.textBaseline = 'middle';
 
-            if (subMatch || supMatch) {
-                const isSuper = !!supMatch;
-                const base = (subMatch || supMatch)[1];
-                const script = (subMatch || supMatch)[2];
+            let match;
+            while ((match = tagRe.exec(text)) !== null) {
+                const start = match.index;
+                const end = tagRe.lastIndex;
 
-                ctx.font = baseFont;
-                ctx.fillText(base, x, y);
-                const baseW = ctx.measureText(base).width;
+                // Plain chunk before tag
+                const plain = text.slice(cursor, start).replace(/<[^>]*>/g, '');
+                if (plain) {
+                    ctx.font = baseFont;
+                    ctx.fillText(plain, cx, y);
+                    cx += ctx.measureText(plain).width;
+                }
 
-                ctx.font = scriptFont;
-                ctx.fillText(script, x + baseW + kern, y + (isSuper ? supDy : subDy));
-            } else {
-                // Fallback: remove any HTML tags and draw as a normal label.
-                const clean = text.replace(/<[^>]*>/g, '');
+                // Script chunk
+                const kind = (match[1] || '').toLowerCase();
+                const script = (match[2] || '').replace(/<[^>]*>/g, '');
+                if (script) {
+                    ctx.font = scriptFont;
+                    ctx.fillText(script, cx + kern, y + (kind === 'sup' ? supDy : subDy));
+                    cx += ctx.measureText(script).width + kern;
+                }
+
+                cursor = end;
+            }
+
+            // Trailing plain text
+            const tail = text.slice(cursor).replace(/<[^>]*>/g, '');
+            if (tail) {
                 ctx.font = baseFont;
-                ctx.fillText(clean, x, y);
+                ctx.fillText(tail, cx, y);
             }
 
             ctx.restore();
@@ -1320,7 +1445,7 @@
             const n = norm2(dir);
             const p1 = worldToScreen2D(origin.x + n.x * -50, origin.y + n.y * -50);
             const p2 = worldToScreen2D(origin.x + n.x * 50, origin.y + n.y * 50);
-            
+
             ctx.strokeStyle = color;
             ctx.lineWidth = 2;
             ctx.setLineDash([8, 5]);
@@ -1331,43 +1456,42 @@
             ctx.setLineDash([]);
 
             if (label) {
-                ctx.font = 'italic 13px Crimson Pro';
-                ctx.fillStyle = color;
                 const lp = worldToScreen2D(origin.x + n.x * 2.5, origin.y + n.y * 2.5);
-                ctx.fillText(label, lp.x + 8, lp.y);
+                drawMathLabel2D(label, lp.x + 8, lp.y, color, 13);
             }
         }
 
         function draw2D() {
+            const { w, h } = getCanvasSize2D();
             ctx.fillStyle = colors.bg;
-            ctx.fillRect(0, 0, canvas2D.width, canvas2D.height);
+            ctx.fillRect(0, 0, w, h);
             drawGrid2D();
-            
+
             const e1 = vec2FromAngle(state.e1.angle, state.e1.length);
             const e2 = vec2FromAngle(state.e2.angle, state.e2.length);
-            
+
             // Finish line (e1 · x = 1)
             const e1n = norm2(e1);
             const finishDist = 1 / mag2(e1);
             const finishOrigin = { x: e1n.x * finishDist, y: e1n.y * finishDist };
             drawLine2D(finishOrigin, perp2(e1), colors.finishLine, 'e<sub>1</sub>·x = 1');
-            
+
             // Zero line if showing e2
             if (state.showE2_2D) {
                 drawLine2D({ x: 0, y: 0 }, perp2(e2), colors.zeroLine, 'e<sub>2</sub>·x = 0');
             }
-            
+
             // Draw basis vectors
             drawVector2D({ x: 0, y: 0 }, e1, colors.e1, 'e<sub>1</sub>');
             if (state.showE2_2D) {
                 drawVector2D({ x: 0, y: 0 }, e2, colors.e2, 'e<sub>2</sub>');
             }
-            
+
             // Draw dual vector if showing
             const dual = computeDual2D(e1, e2);
             if (state.showDual2D && dual) {
                 drawVector2D({ x: 0, y: 0 }, dual.dual1, colors.r1, 'e<sup>1</sup>');
-                
+
                 const d1e1 = dot2(dual.dual1, e1);
                 const d1e2 = dot2(dual.dual1, e2);
                 document.getElementById('dot-e1e1').textContent = d1e1.toFixed(2);
@@ -1380,21 +1504,21 @@
                 document.getElementById('dot-e1e2').textContent = '—';
                 document.getElementById('dual-mag').textContent = '—';
             }
-            
+
             // Draw probe if showing
             if (state.showProbe2D) {
                 const probeDotVal = dot2(state.probe, e1);
                 const isOnFinish = Math.abs(probeDotVal - 1) < 0.05;
                 const probeColor = isOnFinish ? colors.probeActive : colors.probe;
                 drawVector2D({ x: 0, y: 0 }, state.probe, probeColor, 'Probe');
-                
+
                 document.getElementById('probe-dot').textContent = probeDotVal.toFixed(2);
                 document.getElementById('probe-dot').className = 'info-value ' + (isOnFinish ? 'probe-on' : '');
             } else {
                 document.getElementById('probe-dot').textContent = '—';
                 document.getElementById('probe-dot').className = 'info-value';
             }
-            
+
             // Area
             const area = Math.abs(e1.x * e2.y - e1.y * e2.x);
             document.getElementById('area-2d').textContent = area.toFixed(2);
@@ -1402,37 +1526,81 @@
 
         function resize2D() {
             const container = canvas2D.parentElement;
-            canvas2D.width = container.clientWidth;
-            canvas2D.height = container.clientHeight;
+            const cw = Math.max(1, container.clientWidth);
+            const ch = Math.max(1, container.clientHeight);
+            const dpr = window.devicePixelRatio || 1;
+
+            // Render at device pixel ratio for sharpness, but keep CSS pixel coordinates.
+            canvas2D.width = Math.floor(cw * dpr);
+            canvas2D.height = Math.floor(ch * dpr);
+            canvas2D.style.width = cw + 'px';
+            canvas2D.style.height = ch + 'px';
+
+            ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+
             if (state.mode === '2d') draw2D();
         }
 
-        // 2D Mouse handlers
-        canvas2D.addEventListener('mousedown', (e) => {
+        // 2D Pointer handlers (mouse + touch) + pinch zoom
+        const pointers2D = new Map();
+        let pinch2D = { active: false, startDist: 0, startScale: 0 };
+
+        function dist2(a, b) {
+            const dx = a.x - b.x, dy = a.y - b.y;
+            return Math.sqrt(dx*dx + dy*dy);
+        }
+
+        canvas2D.addEventListener('pointerdown', (e) => {
+            canvas2D.setPointerCapture(e.pointerId);
             const rect = canvas2D.getBoundingClientRect();
-            const mouse = { x: e.clientX - rect.left, y: e.clientY - rect.top };
-            const world = screenToWorld2D(mouse.x, mouse.y);
-            
+            const pt = { x: e.clientX - rect.left, y: e.clientY - rect.top };
+            pointers2D.set(e.pointerId, pt);
+
+            // If two pointers are active -> pinch zoom
+            if (pointers2D.size === 2) {
+                const [pA, pB] = Array.from(pointers2D.values());
+                pinch2D = { active: true, startDist: dist2(pA, pB), startScale: state.scale2D };
+                state.dragging2D = null;
+                return;
+            }
+
+            // Single pointer: start dragging a handle if near
+            const world = screenToWorld2D(pt.x, pt.y);
             const e1 = vec2FromAngle(state.e1.angle, state.e1.length);
             const e2 = vec2FromAngle(state.e2.angle, state.e2.length);
-            
             const threshold = 0.25;
-            
-            // Check probe first (if visible)
+
             if (state.showProbe2D && Math.sqrt((world.x - state.probe.x)**2 + (world.y - state.probe.y)**2) < threshold) {
                 state.dragging2D = 'probe';
             } else if (Math.sqrt((world.x - e1.x)**2 + (world.y - e1.y)**2) < threshold) {
                 state.dragging2D = 'e1';
             } else if (state.showE2_2D && Math.sqrt((world.x - e2.x)**2 + (world.y - e2.y)**2) < threshold) {
                 state.dragging2D = 'e2';
+            } else {
+                state.dragging2D = null;
             }
         });
 
-        canvas2D.addEventListener('mousemove', (e) => {
+        canvas2D.addEventListener('pointermove', (e) => {
+            if (!pointers2D.has(e.pointerId)) return;
             const rect = canvas2D.getBoundingClientRect();
-            const mouse = { x: e.clientX - rect.left, y: e.clientY - rect.top };
-            const world = screenToWorld2D(mouse.x, mouse.y);
-            
+            const pt = { x: e.clientX - rect.left, y: e.clientY - rect.top };
+            pointers2D.set(e.pointerId, pt);
+
+            // Pinch zoom with two pointers
+            if (pinch2D.active && pointers2D.size === 2) {
+                const [pA, pB] = Array.from(pointers2D.values());
+                const d = Math.max(1, dist2(pA, pB));
+                const factor = d / Math.max(1, pinch2D.startDist);
+                state.scale2D = Math.max(40, Math.min(250, pinch2D.startScale * factor));
+                draw2D();
+                return;
+            }
+
+            if (!state.dragging2D) return;
+
+            const world = screenToWorld2D(pt.x, pt.y);
+
             if (state.dragging2D === 'probe') {
                 state.probe = { x: world.x, y: world.y };
                 updateProbeSliders();
@@ -1450,15 +1618,24 @@
             }
         });
 
-        canvas2D.addEventListener('mouseup', () => { state.dragging2D = null; });
-        canvas2D.addEventListener('mouseleave', () => { state.dragging2D = null; });
+        function endPointer2D(e) {
+            pointers2D.delete(e.pointerId);
+            if (pointers2D.size < 2) pinch2D.active = false;
+            if (pointers2D.size === 0) state.dragging2D = null;
+        }
+
+        canvas2D.addEventListener('pointerup', endPointer2D);
+        canvas2D.addEventListener('pointercancel', endPointer2D);
+        canvas2D.addEventListener('pointerleave', endPointer2D);
+
+        // Mouse wheel zoom (desktop)
         canvas2D.addEventListener('wheel', (e) => {
             e.preventDefault();
             state.scale2D = Math.max(40, Math.min(250, state.scale2D * (e.deltaY > 0 ? 0.92 : 1.08)));
             draw2D();
-        });
+        }, { passive: false });
 
-        function update2DSliders() {
+function update2DSliders() {
             document.getElementById('e1-angle').value = state.e1.angle;
             document.getElementById('e1-length').value = state.e1.length;
             document.getElementById('e2-angle').value = state.e2.angle;
@@ -1528,7 +1705,7 @@
             // Subtle coordinate axes (no labels - focus is on basis vectors)
             const axLen = 2.5;
             const axisColors = [0x3a4555, 0x3a4555, 0x3a4555]; // Subtle gray for all
-            
+
             for (let i = 0; i < 3; i++) {
                 const dir = new THREE.Vector3();
                 dir.setComponent(i, 1);
@@ -1551,7 +1728,7 @@
             const recipColors = [0x8be9fd, 0xbd93f9, 0xffb86c];
             const basisLabels = ['e1', 'e2', 'e3'];
             const recipLabels = ['e^1', 'e^2', 'e^3'];
-            
+
             for (let i = 0; i < 3; i++) {
                 basisArrows.push(createArrow3D(basisColors[i], basisLabels[i]));
                 recipArrows.push(createArrow3D(recipColors[i], recipLabels[i]));
@@ -1670,10 +1847,10 @@
         function updateArrow3D(arrow, start, end) {
             const dir = new THREE.Vector3().subVectors(end, start);
             const len = dir.length();
-            
+
             const pos = new Float32Array([start.x, start.y, start.z, end.x, end.y, end.z]);
             arrow.userData.line.geometry.setAttribute('position', new THREE.BufferAttribute(pos, 3));
-            
+
             arrow.userData.cone.position.copy(end);
             if (len > 0.01) {
                 arrow.userData.cone.quaternion.setFromUnitVectors(new THREE.Vector3(0, 1, 0), dir.normalize());
@@ -1696,13 +1873,13 @@
                 depthWrite: false
             });
             const mesh = new THREE.Mesh(geo, mat);
-            
+
             const edgeMat = new THREE.LineBasicMaterial({ color, transparent: true, opacity: 0.4 });
             const edgeGeo = new THREE.BufferGeometry();
             const edges = new THREE.LineSegments(edgeGeo, edgeMat);
             mesh.add(edges);
             mesh.userData.edges = edges;
-            
+
             return mesh;
         }
 
@@ -1718,7 +1895,7 @@
 
             const verts = [O, V1, V2, V12, V3, V13, V23, V123];
             const positions = new Float32Array(verts.flatMap(v => [v.x, v.y, v.z]));
-            
+
             const indices = [
                 0,1,3, 0,3,2,
                 4,5,7, 4,7,6,
@@ -1745,13 +1922,13 @@
             updateArrow3D(basisArrows[0], origin, new THREE.Vector3(e1.x, e1.z, e1.y));
             updateArrow3D(basisArrows[1], origin, new THREE.Vector3(e2.x, e2.z, e2.y));
             updateArrow3D(basisArrows[2], origin, new THREE.Vector3(e3.x, e3.z, e3.y));
-            
+
             // Control basis visibility
             basisArrows.forEach(a => a.visible = state.show.basis);
 
             // Compute reciprocal basis
             const recip = computeReciprocal3D(e1, e2, e3);
-            
+
             if (recip && state.show.reciprocal) {
                 recipArrows.forEach(a => a.visible = true);
                 updateArrow3D(recipArrows[0], origin, new THREE.Vector3(recip.r1.x, recip.r1.z, recip.r1.y));
@@ -1764,7 +1941,7 @@
             // Update parallelepipeds
             basisPiped.visible = state.show.basisVol;
             if (state.show.basisVol) {
-                updateParallelepiped(basisPiped, 
+                updateParallelepiped(basisPiped,
                     { x: e1.x, y: e1.z, z: e1.y },
                     { x: e2.x, y: e2.z, z: e2.y },
                     { x: e3.x, y: e3.z, z: e3.y }
@@ -1785,7 +1962,7 @@
                 const V = recip.volume;
                 const r2xr3 = cross3(recip.r2, recip.r3);
                 const Vstar = dot3(recip.r1, r2xr3);
-                
+
                 document.getElementById('vol-basis').textContent = V.toFixed(3);
                 document.getElementById('vol-recip').textContent = Vstar.toFixed(3);
                 document.getElementById('vol-product').textContent = (V * Vstar).toFixed(3);
@@ -1803,7 +1980,7 @@
                         const cell = document.getElementById(`mm${i+1}${j+1}`);
                         const val = matrix[i][j];
                         cell.textContent = val.toFixed(1);
-                        cell.style.color = Math.abs(val - (i === j ? 1 : 0)) < 0.01 ? 
+                        cell.style.color = Math.abs(val - (i === j ? 1 : 0)) < 0.01 ?
                             (i === j ? '#3fb950' : '#484f58') : '#f85149';
                     }
                 }
@@ -1815,7 +1992,7 @@
                         if (cell) {
                             const val = matrix[i][j];
                             cell.textContent = val.toFixed(2);
-                            cell.className = 'matrix-cell value ' + 
+                            cell.className = 'matrix-cell value ' +
                                 (Math.abs(val - 1) < 0.01 ? 'one' : Math.abs(val) < 0.01 ? 'zero' : '');
                         }
                     }
@@ -1831,30 +2008,72 @@
 
         function setupOrbitControls3D() {
             const canvas = document.getElementById('canvas-3d');
-            
-            canvas.addEventListener('mousedown', (e) => {
+
+            const pointers3D = new Map();
+            let pinch3D = { active: false, startDist: 0, startRadius: spherical.radius };
+
+            function dist2(a, b) {
+                const dx = a.x - b.x, dy = a.y - b.y;
+                return Math.sqrt(dx*dx + dy*dy);
+            }
+
+            canvas.addEventListener('pointerdown', (e) => {
+                canvas.setPointerCapture(e.pointerId);
+                pointers3D.set(e.pointerId, { x: e.clientX, y: e.clientY });
+
+                if (pointers3D.size === 2) {
+                    const [pA, pB] = Array.from(pointers3D.values());
+                    pinch3D = { active: true, startDist: dist2(pA, pB), startRadius: spherical.radius };
+                    isDragging3D = false;
+                    return;
+                }
+
                 isDragging3D = true;
                 prevMouse3D = { x: e.clientX, y: e.clientY };
             });
 
-            canvas.addEventListener('mousemove', (e) => {
+            canvas.addEventListener('pointermove', (e) => {
+                if (!pointers3D.has(e.pointerId)) return;
+                pointers3D.set(e.pointerId, { x: e.clientX, y: e.clientY });
+
+                if (pinch3D.active && pointers3D.size === 2) {
+                    const [pA, pB] = Array.from(pointers3D.values());
+                    const d = Math.max(1, dist2(pA, pB));
+                    const factor = d / Math.max(1, pinch3D.startDist);
+
+                    // Pinch out -> zoom in (smaller radius)
+                    spherical.radius = Math.max(3, Math.min(15, pinch3D.startRadius / factor));
+                    updateCamera3D();
+                    return;
+                }
+
                 if (!isDragging3D) return;
+
                 spherical.theta -= (e.clientX - prevMouse3D.x) * 0.01;
                 spherical.phi = Math.max(0.1, Math.min(Math.PI - 0.1, spherical.phi - (e.clientY - prevMouse3D.y) * 0.01));
                 prevMouse3D = { x: e.clientX, y: e.clientY };
                 updateCamera3D();
             });
 
-            canvas.addEventListener('mouseup', () => { isDragging3D = false; });
-            canvas.addEventListener('mouseleave', () => { isDragging3D = false; });
+            function endPointer3D(e) {
+                pointers3D.delete(e.pointerId);
+                if (pointers3D.size < 2) pinch3D.active = false;
+                if (pointers3D.size === 0) isDragging3D = false;
+            }
+
+            canvas.addEventListener('pointerup', endPointer3D);
+            canvas.addEventListener('pointercancel', endPointer3D);
+            canvas.addEventListener('pointerleave', endPointer3D);
+
+            // Wheel zoom (desktop)
             canvas.addEventListener('wheel', (e) => {
                 e.preventDefault();
                 spherical.radius = Math.max(3, Math.min(15, spherical.radius + e.deltaY * 0.01));
                 updateCamera3D();
-            });
+            }, { passive: false });
         }
 
-        function updateCamera3D() {
+function updateCamera3D() {
             camera.position.x = spherical.radius * Math.sin(spherical.phi) * Math.cos(spherical.theta);
             camera.position.y = spherical.radius * Math.cos(spherical.phi);
             camera.position.z = spherical.radius * Math.sin(spherical.phi) * Math.sin(spherical.theta);
@@ -1924,7 +2143,7 @@
                 const is3D = state.mode === '3d';
                 document.getElementById('tabs-2d').classList.toggle('hidden', is3D);
                 document.getElementById('tabs-3d').classList.toggle('hidden', !is3D);
-                document.getElementById('controls-2d').classList.toggle('hidden', is3D);
+                document.getElementById('controls-2d-right').classList.toggle('hidden', is3D);
                 document.getElementById('controls-3d-right').classList.toggle('hidden', !is3D);
                 document.getElementById('canvas-2d').classList.toggle('hidden', is3D);
                 document.getElementById('canvas-3d').classList.toggle('hidden', !is3D);
@@ -1960,16 +2179,16 @@
                 document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
                 tab.classList.add('active');
                 document.getElementById('panel-' + tab.dataset.tab).classList.add('active');
-                
+
                 state.tab2D = tab.dataset.tab;
                 state.showE2_2D = tab.dataset.tab !== 'finish';
                 state.showDual2D = tab.dataset.tab === 'conflict';
                 state.showProbe2D = tab.dataset.tab === 'finish';
-                
+
                 // Show/hide probe controls and e2 controls based on tab
                 document.getElementById('probe-controls').classList.toggle('hidden', !state.showProbe2D);
                 document.getElementById('e2-controls').classList.toggle('hidden', !state.showE2_2D);
-                
+
                 draw2D();
             });
         });
@@ -1988,14 +2207,32 @@
         // =====================================================
         // INIT
         // =====================================================
+        const _ro = new ResizeObserver(() => {
+            if (state.mode === '2d') resize2D();
+            else resize3D();
+        });
+        _ro.observe(document.querySelector('.canvas-container'));
+
         window.addEventListener('resize', () => {
             if (state.mode === '2d') resize2D();
             else resize3D();
         });
 
-        // Start with Finish Line tab - hide e2 controls
-        document.getElementById('e2-controls').classList.add('hidden');
         
+        // Sidebar toggle (collapse/expand)
+        const _sidebarBtn = document.getElementById('sidebar-toggle');
+        if (_sidebarBtn) {
+            _sidebarBtn.addEventListener('click', () => {
+                document.body.classList.toggle('sidebar-collapsed');
+                // Ensure canvases resize correctly after layout changes
+                if (state.mode === '2d') resize2D();
+                else resize3D();
+            });
+        }
+
+// Start with Finish Line tab - hide e2 controls
+        document.getElementById('e2-controls').classList.add('hidden');
+
         resize2D();
         update2DSliders();
         updateProbeSliders();
