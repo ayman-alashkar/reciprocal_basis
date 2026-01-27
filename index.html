@@ -131,6 +131,24 @@
             background: var(--bg-tertiary);
         }
 
+        /* Sub-mode toggle (smaller, different style) */
+        .mode-toggle.sub-mode {
+            margin: 8px 20px 12px;
+            background: var(--bg-tertiary);
+            border: 1px solid var(--border-color);
+        }
+
+        .mode-toggle.sub-mode .mode-btn {
+            padding: 8px 10px;
+            font-size: 12px;
+        }
+
+        .mode-toggle.sub-mode .mode-btn.active {
+            background: var(--bg-primary);
+            box-shadow: none;
+            color: var(--accent-e1);
+        }
+
         /* Tabs */
         .tabs {
             display: flex;
@@ -857,7 +875,13 @@
                 <button class="mode-btn" data-mode="3d">3D Reciprocal</button>
             </div>
 
-            <!-- 2D Tabs -->
+            <!-- 2D Sub-mode Toggle -->
+            <div class="mode-toggle sub-mode" id="submode-2d">
+                <button class="mode-btn active" data-submode="construct">Constructing e<sup>1</sup></button>
+                <button class="mode-btn" data-submode="decompose">Vector Decomposition</button>
+            </div>
+
+            <!-- 2D Tabs (for Constructing e¹) -->
             <nav class="tabs" id="tabs-2d">
                 <button class="tab active" data-tab="finish">Finish Line</button>
                 <button class="tab" data-tab="master">Second Master</button>
@@ -900,6 +924,13 @@
                         <div class="highlight-box-title">The Constraint</div>
                         <p style="margin: 0;"><span class="vec-r1">e<sup>1</sup></span> must be orthogonal to every basis vector except <span class="vec-e1">e<sub>1</sub></span>.</p>
                     </div>
+
+                    <div class="highlight-box success" style="margin-top: 16px;">
+                        <div class="highlight-box-title">🎯 Challenge</div>
+                        <p style="margin: 0;">Can you drag the <span class="vec-probe">Probe</span> to where you think <span class="vec-r1">e<sup>1</sup></span> should be?<br><em>Hint: It must satisfy both constraints!</em></p>
+                    </div>
+
+                    <p style="margin-top: 12px; font-size: 13px;"><em>Check your answer in "The Conflict" tab!</em></p>
                 </div>
 
                 <div class="panel" id="panel-conflict">
@@ -921,6 +952,41 @@
                     <div class="equation-box">
                         <span class="equation">e<sup>1</sup> = e<sub>2</sub>⊥ / (e<sub>1</sub> · e<sub>2</sub>⊥)</span>
                     </div>
+                </div>
+
+                <!-- Vector Decomposition Panel -->
+                <div class="panel" id="panel-decompose">
+                    <h2 class="panel-title">Vector Decomposition</h2>
+                    <p>Any vector <span class="vec-probe">v</span> can be decomposed using both bases:</p>
+
+                    <div class="equation-box">
+                        <span class="equation">v = v<sup>1</sup>e<sub>1</sub> + v<sup>2</sup>e<sub>2</sub> = v<sub>1</sub>e<sup>1</sup> + v<sub>2</sub>e<sup>2</sup></span>
+                    </div>
+
+                    <div class="highlight-box">
+                        <div class="highlight-box-title">Contravariant (v<sup>i</sup>)</div>
+                        <p style="margin: 0;"><span class="math">v<sup>i</sup> = v · e<sup>i</sup></span> — scalar, lives on <span class="vec-r1">e<sup>i</sup></span> axis<br>
+                        <span class="math">v<sup>i</sup>·e<sub>i</sub></span> — component vector on <span class="vec-e1">e<sub>i</sub></span> axis</p>
+                    </div>
+
+                    <div class="highlight-box constraint">
+                        <div class="highlight-box-title">Covariant (v<sub>i</sub>)</div>
+                        <p style="margin: 0;"><span class="math">v<sub>i</sub> = v · e<sub>i</sub></span> — scalar, lives on <span class="vec-e1">e<sub>i</sub></span> axis<br>
+                        <span class="math">v<sub>i</sub>·e<sup>i</sup></span> — component vector on <span class="vec-r1">e<sup>i</sup></span> axis</p>
+                    </div>
+
+                    <div class="control-section" style="margin-top: 16px; padding: 12px; background: var(--bg-primary); border-radius: 8px;">
+                        <div class="control-section-title">Show Decomposition</div>
+                        <div class="toggle-row">
+                            <span class="toggle-label">Contravariant: v<sup>i</sup> and v<sup>i</sup>·e<sub>i</sub></span>
+                            <div class="toggle active" id="toggle-contravariant" onclick="toggleDecompView('contra')"></div>
+                        </div>
+                        <div class="toggle-row">
+                            <span class="toggle-label">Covariant: v<sub>i</sub> and v<sub>i</sub>·e<sup>i</sup></span>
+                            <div class="toggle" id="toggle-covariant" onclick="toggleDecompView('cov')"></div>
+                        </div>
+                    </div>
+                    
                 </div>
 
                 <!-- 3D Panels -->
@@ -1025,7 +1091,8 @@
                     <div class="legend-item"><div class="legend-dot e1"></div><span>e<sub>1</sub></span></div>
                     <div class="legend-item"><div class="legend-dot e2"></div><span>e<sub>2</sub></span></div>
                     <div class="legend-item"><div class="legend-dot r1"></div><span>e<sup>1</sup></span></div>
-                    <div class="legend-item"><div class="legend-dot probe"></div><span>Probe</span></div>
+                    <div class="legend-item"><div class="legend-dot r2"></div><span>e<sup>2</sup></span></div>
+                    <div class="legend-item"><div class="legend-dot probe"></div><span>v / Probe</span></div>
                 </div>
                 <div class="legend hidden" id="legend-3d">
                     <div class="legend-item"><div class="legend-dot e1"></div><span>e<sub>1</sub></span></div>
@@ -1179,6 +1246,33 @@
                     </div>
                 </div>
 
+                <!-- 2D Decomposition Info Overlay -->
+                <div class="info-overlay hidden" id="info-2d-decompose">
+                    <div class="info-title">Vector v Components</div>
+                    <div class="info-row">
+                        <span class="info-label">v · e<sub>1</sub> = v<sub>1</sub></span>
+                        <span class="info-value" id="v-cov1" style="color: var(--accent-e1)">—</span>
+                    </div>
+                    <div class="info-row">
+                        <span class="info-label">v · e<sub>2</sub> = v<sub>2</sub></span>
+                        <span class="info-value" id="v-cov2" style="color: var(--accent-e2)">—</span>
+                    </div>
+                    <div class="info-divider"></div>
+                    <div class="info-row">
+                        <span class="info-label">v · e<sup>1</sup> = v<sup>1</sup></span>
+                        <span class="info-value" id="v-con1" style="color: var(--accent-r1)">—</span>
+                    </div>
+                    <div class="info-row">
+                        <span class="info-label">v · e<sup>2</sup> = v<sup>2</sup></span>
+                        <span class="info-value" id="v-con2" style="color: var(--accent-r2)">—</span>
+                    </div>
+                    <div class="info-divider"></div>
+                    <div class="info-row">
+                        <span class="info-label">Area</span>
+                        <span class="info-value highlight" id="area-2d-decompose">1.00</span>
+                    </div>
+                </div>
+
                 <div class="info-overlay hidden" id="info-3d">
                     <div class="info-title">Volumes</div>
                     <div class="info-row">
@@ -1324,6 +1418,9 @@
         // =====================================================
         const state = {
             mode: '2d',
+            submode2D: 'construct', // 'construct' or 'decompose'
+            showContravariant: true, // show v^i and v^i·e_i
+            showCovariant: false,    // show v_i and v_i·e^i
             // 2D
             e1: { angle: 0, length: 1 },
             e2: { angle: 90, length: 1 },
@@ -1617,59 +1714,232 @@
 
             const e1 = vec2FromAngle(state.e1.angle, state.e1.length);
             const e2 = vec2FromAngle(state.e2.angle, state.e2.length);
-
-            // Finish line (e1 · x = 1)
-            const e1n = norm2(e1);
-            const finishDist = 1 / mag2(e1);
-            const finishOrigin = { x: e1n.x * finishDist, y: e1n.y * finishDist };
-            drawLine2D(finishOrigin, perp2(e1), colors.finishLine, 'e<sub>1</sub>·x = 1');
-
-            // Zero line if showing e2
-            if (state.showE2_2D) {
-                drawLine2D({ x: 0, y: 0 }, perp2(e2), colors.zeroLine, 'e<sub>2</sub>·x = 0');
-            }
-
-            // Draw basis vectors
-            drawVector2D({ x: 0, y: 0 }, e1, colors.e1, 'e<sub>1</sub>');
-            if (state.showE2_2D) {
-                drawVector2D({ x: 0, y: 0 }, e2, colors.e2, 'e<sub>2</sub>');
-            }
-
-            // Draw dual vector if showing
             const dual = computeDual2D(e1, e2);
-            if (state.showDual2D && dual) {
-                drawVector2D({ x: 0, y: 0 }, dual.dual1, colors.r1, 'e<sup>1</sup>');
 
-                const d1e1 = dot2(dual.dual1, e1);
-                const d1e2 = dot2(dual.dual1, e2);
-                document.getElementById('dot-e1e1').textContent = d1e1.toFixed(2);
-                document.getElementById('dot-e1e2').textContent = d1e2.toFixed(2);
-                document.getElementById('dot-e1e1').className = 'info-value ' + (Math.abs(d1e1 - 1) < 0.01 ? 'satisfied' : '');
-                document.getElementById('dot-e1e2').className = 'info-value ' + (Math.abs(d1e2) < 0.01 ? 'satisfied' : '');
-                document.getElementById('dual-mag').textContent = mag2(dual.dual1).toFixed(2);
+            // Different rendering based on submode
+            if (state.submode2D === 'decompose') {
+                // DECOMPOSITION MODE
+                const v = state.probe;
+                
+                // Helper to compute perpendicular projection of point onto axis
+                function perpProjection(point, axisVec) {
+                    const axisNorm = norm2(axisVec);
+                    const projLen = dot2(point, axisNorm);
+                    return { x: axisNorm.x * projLen, y: axisNorm.y * projLen };
+                }
+                
+                // Helper to draw extension line beyond vector tip (only if needed)
+                function drawExtensionIfNeeded(vec, componentPt, color) {
+                    const vecLen = mag2(vec);
+                    const compLen = mag2(componentPt);
+                    const vecNorm = norm2(vec);
+                    const compNorm = norm2(componentPt);
+                    
+                    // Check if component is in same direction as vec
+                    const sameDir = dot2(vecNorm, compNorm) > 0;
+                    const ratio = sameDir ? compLen / vecLen : -compLen / vecLen;
+                    
+                    // Only extend if component is beyond the vector tip (ratio > 1) or negative (ratio < 0)
+                    if (ratio > 1 || ratio < 0) {
+                        const startT = ratio < 0 ? ratio : 1;
+                        const endT = ratio < 0 ? 0 : ratio;
+                        
+                        const p1 = worldToScreen2D(vec.x * startT, vec.y * startT);
+                        const p2 = worldToScreen2D(vec.x * endT, vec.y * endT);
+                        
+                        ctx.strokeStyle = color;
+                        ctx.lineWidth = 1.5;
+                        ctx.setLineDash([6, 4]);
+                        ctx.globalAlpha = 0.5;
+                        ctx.beginPath();
+                        ctx.moveTo(p1.x, p1.y);
+                        ctx.lineTo(p2.x, p2.y);
+                        ctx.stroke();
+                        ctx.setLineDash([]);
+                        ctx.globalAlpha = 1.0;
+                    }
+                }
+                
+                // Helper to draw projection line
+                function drawProjectionLine(fromPt, toPt, color) {
+                    const fromScreen = worldToScreen2D(fromPt.x, fromPt.y);
+                    const toScreen = worldToScreen2D(toPt.x, toPt.y);
+                    ctx.strokeStyle = color;
+                    ctx.lineWidth = 1.5;
+                    ctx.setLineDash([4, 3]);
+                    ctx.globalAlpha = 0.7;
+                    ctx.beginPath();
+                    ctx.moveTo(fromScreen.x, fromScreen.y);
+                    ctx.lineTo(toScreen.x, toScreen.y);
+                    ctx.stroke();
+                    ctx.setLineDash([]);
+                    ctx.globalAlpha = 1.0;
+                }
+                
+                // Helper to draw labeled point
+                function drawLabeledPoint(pt, label, color) {
+                    const screen = worldToScreen2D(pt.x, pt.y);
+                    ctx.fillStyle = color;
+                    ctx.beginPath();
+                    ctx.arc(screen.x, screen.y, 5, 0, Math.PI * 2);
+                    ctx.fill();
+                    drawMathLabel2D(label, screen.x + 12, screen.y - 12, color, 13);
+                }
+                
+                if (dual) {
+                    // Compute scalar components
+                    const v_con1 = dot2(v, dual.dual1);  // v · e¹ = v¹
+                    const v_con2 = dot2(v, dual.dual2);  // v · e² = v²
+                    const v_cov1 = dot2(v, e1);          // v · e₁ = v₁
+                    const v_cov2 = dot2(v, e2);          // v · e₂ = v₂
+                    
+                    // ========== CONTRAVARIANT VIEW (v = v¹e₁ + v²e₂) ==========
+                    if (state.showContravariant) {
+                        // Scalar v¹ lives on e¹ axis (perpendicular projection)
+                        const v1_scalar_pt = perpProjection(v, dual.dual1);
+                        // Scalar v² lives on e² axis (perpendicular projection)
+                        const v2_scalar_pt = perpProjection(v, dual.dual2);
+                        
+                        // Vector component v¹·e₁ lives on e₁ axis
+                        const v1_vec_pt = { x: e1.x * v_con1, y: e1.y * v_con1 };
+                        // Vector component v²·e₂ lives on e₂ axis
+                        const v2_vec_pt = { x: e2.x * v_con2, y: e2.y * v_con2 };
+                        
+                        // Draw extensions if needed
+                        drawExtensionIfNeeded(dual.dual1, v1_scalar_pt, colors.r1);
+                        drawExtensionIfNeeded(dual.dual2, v2_scalar_pt, colors.r2);
+                        drawExtensionIfNeeded(e1, v1_vec_pt, colors.e1);
+                        drawExtensionIfNeeded(e2, v2_vec_pt, colors.e2);
+                        
+                        // Draw perpendicular projection lines for scalars
+                        drawProjectionLine(v, v1_scalar_pt, colors.r1);
+                        drawProjectionLine(v, v2_scalar_pt, colors.r2);
+                        
+                        // Draw parallelogram lines for vector components
+                        // v to v¹·e₁ is parallel to e₂
+                        drawProjectionLine(v, v1_vec_pt, colors.e1);
+                        // v to v²·e₂ is parallel to e₁
+                        drawProjectionLine(v, v2_vec_pt, colors.e2);
+                        
+                        // Draw labeled points
+                        drawLabeledPoint(v1_scalar_pt, 'v<sup>1</sup>', colors.r1);
+                        drawLabeledPoint(v2_scalar_pt, 'v<sup>2</sup>', colors.r2);
+                        drawLabeledPoint(v1_vec_pt, 'v<sup>1</sup>·e<sub>1</sub>', colors.e1);
+                        drawLabeledPoint(v2_vec_pt, 'v<sup>2</sup>·e<sub>2</sub>', colors.e2);
+                    }
+                    
+                    // ========== COVARIANT VIEW (v = v₁e¹ + v₂e²) ==========
+                    if (state.showCovariant) {
+                        // Scalar v₁ lives on e₁ axis (perpendicular projection)
+                        const v1_scalar_pt = perpProjection(v, e1);
+                        // Scalar v₂ lives on e₂ axis (perpendicular projection)
+                        const v2_scalar_pt = perpProjection(v, e2);
+                        
+                        // Vector component v₁·e¹ lives on e¹ axis
+                        const v1_vec_pt = { x: dual.dual1.x * v_cov1, y: dual.dual1.y * v_cov1 };
+                        // Vector component v₂·e² lives on e² axis
+                        const v2_vec_pt = { x: dual.dual2.x * v_cov2, y: dual.dual2.y * v_cov2 };
+                        
+                        // Draw extensions if needed
+                        drawExtensionIfNeeded(e1, v1_scalar_pt, colors.e1);
+                        drawExtensionIfNeeded(e2, v2_scalar_pt, colors.e2);
+                        drawExtensionIfNeeded(dual.dual1, v1_vec_pt, colors.r1);
+                        drawExtensionIfNeeded(dual.dual2, v2_vec_pt, colors.r2);
+                        
+                        // Draw perpendicular projection lines for scalars
+                        drawProjectionLine(v, v1_scalar_pt, colors.e1);
+                        drawProjectionLine(v, v2_scalar_pt, colors.e2);
+                        
+                        // Draw parallelogram lines for vector components
+                        // v to v₁·e¹ is parallel to e²
+                        drawProjectionLine(v, v1_vec_pt, colors.r1);
+                        // v to v₂·e² is parallel to e¹
+                        drawProjectionLine(v, v2_vec_pt, colors.r2);
+                        
+                        // Draw labeled points
+                        drawLabeledPoint(v1_scalar_pt, 'v<sub>1</sub>', colors.e1);
+                        drawLabeledPoint(v2_scalar_pt, 'v<sub>2</sub>', colors.e2);
+                        drawLabeledPoint(v1_vec_pt, 'v<sub>1</sub>·e<sup>1</sup>', colors.r1);
+                        drawLabeledPoint(v2_vec_pt, 'v<sub>2</sub>·e<sup>2</sup>', colors.r2);
+                    }
+                    
+                    // Update info overlay
+                    document.getElementById('v-cov1').textContent = v_cov1.toFixed(2);
+                    document.getElementById('v-cov2').textContent = v_cov2.toFixed(2);
+                    document.getElementById('v-con1').textContent = v_con1.toFixed(2);
+                    document.getElementById('v-con2').textContent = v_con2.toFixed(2);
+                    
+                    const area = Math.abs(e1.x * e2.y - e1.y * e2.x);
+                    document.getElementById('area-2d-decompose').textContent = area.toFixed(2);
+                }
+                
+                // Draw basis vectors
+                drawVector2D({ x: 0, y: 0 }, e1, colors.e1, 'e<sub>1</sub>');
+                drawVector2D({ x: 0, y: 0 }, e2, colors.e2, 'e<sub>2</sub>');
+                
+                // Draw dual vectors
+                if (dual) {
+                    drawVector2D({ x: 0, y: 0 }, dual.dual1, colors.r1, 'e<sup>1</sup>');
+                    drawVector2D({ x: 0, y: 0 }, dual.dual2, colors.r2, 'e<sup>2</sup>');
+                }
+                
+                // Draw probe vector (v)
+                drawVector2D({ x: 0, y: 0 }, v, colors.probe, 'v');
+                
             } else {
-                document.getElementById('dot-e1e1').textContent = '—';
-                document.getElementById('dot-e1e2').textContent = '—';
-                document.getElementById('dual-mag').textContent = '—';
+                // CONSTRUCTING e¹ MODE (original behavior)
+                // Finish line (e1 · x = 1)
+                const e1n = norm2(e1);
+                const finishDist = 1 / mag2(e1);
+                const finishOrigin = { x: e1n.x * finishDist, y: e1n.y * finishDist };
+                drawLine2D(finishOrigin, perp2(e1), colors.finishLine, 'e<sub>1</sub>·x = 1');
+
+                // Zero line if showing e2
+                if (state.showE2_2D) {
+                    drawLine2D({ x: 0, y: 0 }, perp2(e2), colors.zeroLine, 'e<sub>2</sub>·x = 0');
+                }
+
+                // Draw basis vectors
+                drawVector2D({ x: 0, y: 0 }, e1, colors.e1, 'e<sub>1</sub>');
+                if (state.showE2_2D) {
+                    drawVector2D({ x: 0, y: 0 }, e2, colors.e2, 'e<sub>2</sub>');
+                }
+
+                // Draw dual vector if showing
+                if (state.showDual2D && dual) {
+                    drawVector2D({ x: 0, y: 0 }, dual.dual1, colors.r1, 'e<sup>1</sup>');
+
+                    const d1e1 = dot2(dual.dual1, e1);
+                    const d1e2 = dot2(dual.dual1, e2);
+                    document.getElementById('dot-e1e1').textContent = d1e1.toFixed(2);
+                    document.getElementById('dot-e1e2').textContent = d1e2.toFixed(2);
+                    document.getElementById('dot-e1e1').className = 'info-value ' + (Math.abs(d1e1 - 1) < 0.01 ? 'satisfied' : '');
+                    document.getElementById('dot-e1e2').className = 'info-value ' + (Math.abs(d1e2) < 0.01 ? 'satisfied' : '');
+                    document.getElementById('dual-mag').textContent = mag2(dual.dual1).toFixed(2);
+                } else {
+                    document.getElementById('dot-e1e1').textContent = '—';
+                    document.getElementById('dot-e1e2').textContent = '—';
+                    document.getElementById('dual-mag').textContent = '—';
+                }
+
+                // Draw probe if showing
+                if (state.showProbe2D) {
+                    const probeDotVal = dot2(state.probe, e1);
+                    const isOnFinish = Math.abs(probeDotVal - 1) < 0.05;
+                    const probeColor = isOnFinish ? colors.probeActive : colors.probe;
+                    drawVector2D({ x: 0, y: 0 }, state.probe, probeColor, 'Probe');
+
+                    document.getElementById('probe-dot').textContent = probeDotVal.toFixed(2);
+                    document.getElementById('probe-dot').className = 'info-value ' + (isOnFinish ? 'probe-on' : '');
+                } else {
+                    document.getElementById('probe-dot').textContent = '—';
+                    document.getElementById('probe-dot').className = 'info-value';
+                }
+
+                // Area
+                const area = Math.abs(e1.x * e2.y - e1.y * e2.x);
+                document.getElementById('area-2d').textContent = area.toFixed(2);
             }
-
-            // Draw probe if showing
-            if (state.showProbe2D) {
-                const probeDotVal = dot2(state.probe, e1);
-                const isOnFinish = Math.abs(probeDotVal - 1) < 0.05;
-                const probeColor = isOnFinish ? colors.probeActive : colors.probe;
-                drawVector2D({ x: 0, y: 0 }, state.probe, probeColor, 'Probe');
-
-                document.getElementById('probe-dot').textContent = probeDotVal.toFixed(2);
-                document.getElementById('probe-dot').className = 'info-value ' + (isOnFinish ? 'probe-on' : '');
-            } else {
-                document.getElementById('probe-dot').textContent = '—';
-                document.getElementById('probe-dot').className = 'info-value';
-            }
-
-            // Area
-            const area = Math.abs(e1.x * e2.y - e1.y * e2.x);
-            document.getElementById('area-2d').textContent = area.toFixed(2);
         }
 
         function resize2D() {
@@ -2279,24 +2549,49 @@ function updateCamera3D() {
             update3D();
         }
 
+        function toggleDecompView(view) {
+            if (view === 'contra') {
+                state.showContravariant = !state.showContravariant;
+                document.getElementById('toggle-contravariant').classList.toggle('active', state.showContravariant);
+            } else if (view === 'cov') {
+                state.showCovariant = !state.showCovariant;
+                document.getElementById('toggle-covariant').classList.toggle('active', state.showCovariant);
+            }
+            draw2D();
+        }
+
         // =====================================================
         // MODE & TAB SWITCHING
         // =====================================================
-        document.querySelectorAll('.mode-btn').forEach(btn => {
+        // Main mode toggle (2D vs 3D) - only the main toggle, not submodes
+        document.querySelectorAll('.mode-toggle:not(.sub-mode) .mode-btn').forEach(btn => {
             btn.addEventListener('click', () => {
-                document.querySelectorAll('.mode-btn').forEach(b => b.classList.remove('active'));
+                document.querySelectorAll('.mode-toggle:not(.sub-mode) .mode-btn').forEach(b => b.classList.remove('active'));
                 btn.classList.add('active');
                 state.mode = btn.dataset.mode;
 
                 const is3D = state.mode === '3d';
-                document.getElementById('tabs-2d').classList.toggle('hidden', is3D);
+                
+                // Toggle submode visibility
+                document.getElementById('submode-2d').classList.toggle('hidden', is3D);
+                
+                // Toggle tabs visibility based on mode and submode
+                const showConstructTabs = !is3D && state.submode2D === 'construct';
+                document.getElementById('tabs-2d').classList.toggle('hidden', !showConstructTabs);
                 document.getElementById('tabs-3d').classList.toggle('hidden', !is3D);
+                
                 document.getElementById('controls-2d-right').classList.toggle('hidden', is3D);
                 document.getElementById('controls-3d-right').classList.toggle('hidden', !is3D);
                 document.getElementById('canvas-2d').classList.toggle('hidden', is3D);
                 document.getElementById('canvas-3d').classList.toggle('hidden', !is3D);
-                document.getElementById('info-2d').classList.toggle('hidden', is3D);
+                
+                // Handle info overlays based on mode and submode
+                const showConstructInfo = !is3D && state.submode2D === 'construct';
+                const showDecomposeInfo = !is3D && state.submode2D === 'decompose';
+                document.getElementById('info-2d').classList.toggle('hidden', !showConstructInfo);
+                document.getElementById('info-2d-decompose').classList.toggle('hidden', !showDecomposeInfo);
                 document.getElementById('info-3d').classList.toggle('hidden', !is3D);
+                
                 document.getElementById('legend-2d').classList.toggle('hidden', is3D);
                 document.getElementById('legend-3d').classList.toggle('hidden', !is3D);
                 document.getElementById('hint-2d').classList.toggle('hidden', is3D);
@@ -2309,18 +2604,26 @@ function updateCamera3D() {
                     resize3D();
                     update3D();
                 } else {
-                    document.getElementById('panel-finish').classList.add('active');
-                    state.showE2_2D = false;
-                    state.showDual2D = false;
+                    // Restore 2D state based on submode
+                    if (state.submode2D === 'construct') {
+                        document.getElementById('panel-' + state.tab2D).classList.add('active');
+                        state.showE2_2D = state.tab2D !== 'finish';
+                        state.showDual2D = state.tab2D === 'conflict';
+                        document.getElementById('e2-controls').classList.toggle('hidden', !state.showE2_2D);
+                    } else {
+                        document.getElementById('panel-decompose').classList.add('active');
+                        state.showE2_2D = true;
+                        state.showDual2D = true;
+                        document.getElementById('e2-controls').classList.remove('hidden');
+                    }
                     state.showProbe2D = true;
                     document.getElementById('probe-controls').classList.remove('hidden');
-                    document.getElementById('e2-controls').classList.add('hidden');
                     resize2D();
                 }
             });
         });
 
-        // 2D Tabs
+        // 2D Tabs (Constructing e¹)
         document.querySelectorAll('#tabs-2d .tab').forEach(tab => {
             tab.addEventListener('click', () => {
                 document.querySelectorAll('#tabs-2d .tab').forEach(t => t.classList.remove('active'));
@@ -2331,11 +2634,54 @@ function updateCamera3D() {
                 state.tab2D = tab.dataset.tab;
                 state.showE2_2D = tab.dataset.tab !== 'finish';
                 state.showDual2D = tab.dataset.tab === 'conflict';
-                state.showProbe2D = tab.dataset.tab === 'finish';
+                state.showProbe2D = true; // Always show probe in all tabs
 
-                // Show/hide probe controls and e2 controls based on tab
-                document.getElementById('probe-controls').classList.toggle('hidden', !state.showProbe2D);
+                // Show/hide e2 controls based on tab (probe always visible)
+                document.getElementById('probe-controls').classList.remove('hidden');
                 document.getElementById('e2-controls').classList.toggle('hidden', !state.showE2_2D);
+
+                draw2D();
+            });
+        });
+
+        // 2D Sub-mode toggle (Constructing e¹ vs Vector Decomposition)
+        document.querySelectorAll('#submode-2d .mode-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                document.querySelectorAll('#submode-2d .mode-btn').forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+                state.submode2D = btn.dataset.submode;
+
+                const isConstruct = state.submode2D === 'construct';
+                
+                // Toggle tabs visibility
+                document.getElementById('tabs-2d').classList.toggle('hidden', !isConstruct);
+                
+                // Toggle panels
+                document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+                
+                if (isConstruct) {
+                    // Show the current tab's panel
+                    document.getElementById('panel-' + state.tab2D).classList.add('active');
+                    state.showE2_2D = state.tab2D !== 'finish';
+                    state.showDual2D = state.tab2D === 'conflict';
+                    // Show e2 controls based on tab
+                    document.getElementById('e2-controls').classList.toggle('hidden', !state.showE2_2D);
+                } else {
+                    // Show decomposition panel
+                    document.getElementById('panel-decompose').classList.add('active');
+                    state.showE2_2D = true;
+                    state.showDual2D = true;
+                    // Show e2 controls for decomposition
+                    document.getElementById('e2-controls').classList.remove('hidden');
+                }
+                
+                // Probe always visible in both modes
+                state.showProbe2D = true;
+                document.getElementById('probe-controls').classList.remove('hidden');
+                
+                // Toggle info overlays
+                document.getElementById('info-2d').classList.toggle('hidden', !isConstruct);
+                document.getElementById('info-2d-decompose').classList.toggle('hidden', isConstruct);
 
                 draw2D();
             });
@@ -2531,8 +2877,10 @@ function updateCamera3D() {
 
         }
 
-// Start with Finish Line tab - hide e2 controls
+// Start with Finish Line tab in Constructing e¹ mode
         document.getElementById('e2-controls').classList.add('hidden');
+        document.getElementById('info-2d-decompose').classList.add('hidden');
+        document.getElementById('probe-controls').classList.remove('hidden');
 
         resize2D();
         update2DSliders();
